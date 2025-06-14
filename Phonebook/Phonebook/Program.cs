@@ -11,6 +11,7 @@ namespace Phonebook
   {
     static Phonebook phonebook = Phonebook.Instance(); //ссылка на объект
     static string filePath = "phonebook.txt"; //путь к файлу
+    
     static void Main(string[] args)
     {
       GetAbonentsFromFile(); // получаем всех абонентов из файла
@@ -41,7 +42,6 @@ namespace Phonebook
               SelectMethodDeleteAbonent();
               break;
             case 5:
-              PutAbonentsInFile();
               repeat = false;
               break;
             default:
@@ -63,15 +63,19 @@ namespace Phonebook
       Console.Write("Введите номер абонента: ");
       string number = Console.ReadLine();
       Abonent abonent = new Abonent(name, number);
-      if (phonebook.AddAbonent(abonent))
+
+      try
       {
+        phonebook.AddAbonent(abonent);
         Console.WriteLine($"Абонент с именем: {name} и номером: {number} успешно добавлен!!");
         PutAbonentInFile(abonent);
       }
-
-      else
-        Console.WriteLine($"Ошибка. Абонент с именем: {name} или номером: {number} уже добавлен или null");
+      catch (Exception ex)
+      {
+        Console.WriteLine(ex.ToString());
+      }
     }
+
     static void GetAbonentByNumber()//получить абонента по номеру
     {
       Console.Write("Введите номер абонента: ");
@@ -82,6 +86,7 @@ namespace Phonebook
       else
         Console.WriteLine($"Абонент с номером: {number} зарегистрирован c именем: {abonent.Name}.");
     }
+
     static void GetAbonentByName()//получить абонента по имени
     {
       Console.Write("Введите имя абонента: ");
@@ -92,6 +97,7 @@ namespace Phonebook
       else
         Console.WriteLine($"Абонент с именем: {name} зарегистрирован c номером: {abonent.Number}.");
     }
+
     static void SelectMethodDeleteAbonent()//выбрать метод удаления абонента
     {
       Console.WriteLine("Способы удаления номера:\n" +
@@ -122,6 +128,7 @@ namespace Phonebook
         Console.WriteLine("Ошибка! Вы ввели не число.");
       }
     }
+
     static void DeleteAbonentByNumber()//удалить абонента по номеру
     {
       Console.Write("Введите номер абонента: ");
@@ -135,6 +142,7 @@ namespace Phonebook
       string name = Console.ReadLine();
       DeleteAbonent("name", name);
     }
+
     static void DeleteAbonent(string searchCriteria, string searchValue)//удалить абонента по номеру или имени
     {
       Abonent abonent = null;
@@ -154,24 +162,31 @@ namespace Phonebook
       }
       else
       {
-        phonebook.DeleteAbonentByAbonent(abonent);
+        phonebook.DeleteAbonentByAbonent(abonent, filePath);
         Console.WriteLine("Абонент успешно удалён!!");
       }
     }
+
     static void DeleteAbonentFromList()//удалить абонента из списка
     {
       PrintAllAbonent();
       Console.Write("Введите номер выбранного действия: ");
       if (int.TryParse(Console.ReadLine(), out int number))
       {
-        if (phonebook.DeleteAbonentFromList(number))
+        try
+        {
+          phonebook.DeleteAbonentFromList(number, filePath);
           Console.WriteLine("Абонент успешно удалён!!");
-        else
-          Console.WriteLine($"Ошибка! Вы ввели не допустимое число.");
+        }
+        catch (Exception ex)
+        {
+          Console.WriteLine(ex.ToString());
+        }
       }
       else
         Console.WriteLine("Ошибка! Вы ввели не число.");
     }
+
     static void PrintAllAbonent() //вывести всех абонентов
     {
       Console.WriteLine("Список всех абонентов:");
@@ -182,14 +197,12 @@ namespace Phonebook
         Console.WriteLine($"{count++}. Имя: {abonent.Name}. Номер: {abonent.Number}");
       }
     }
+
     static void GetAbonentsFromFile() //получить абонентов из файла
     {
       phonebook.GetAbonentsFromFile(filePath);
     }
-    static void PutAbonentsInFile() //записать абонентов в файл
-    { 
-      phonebook.PutAbonentsInFile(filePath);
-    }
+
     static void PutAbonentInFile(Abonent abonent) //записать абонентов в файл
     {
       // какой смысл в записи абонентов в файл при добавлении??
