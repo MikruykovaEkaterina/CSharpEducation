@@ -9,48 +9,74 @@ using System.Xml.Linq;
 
 namespace Company
 {
-  internal class InputHelper
+  /// <summary>
+  /// Статический класс, предоставляющий методы для ввода данных с консоли и создания экземпляров сотрудников.
+  /// </summary>
+  internal static class InputHelper
   {
-
+    /// <summary>
+    /// Считывает строковое значение с консоли.
+    /// </summary>
+    /// <param name="prompt">Подсказка для ввода.</param>
+    /// <returns>Введенное строковое значение.</returns>
+    /// <exception cref="ArgumentException">Вызывается, если введено недопустимое значение (пустая строка).</exception>
     public static string ReadString(string prompt)
     {
       Console.Write($"{prompt}: ");
       string? value = Console.ReadLine();
       if (string.IsNullOrWhiteSpace(value))
-        throw new ArgumentException($"Введено недопустимое значение для ({prompt})");
+        throw new ArgumentException($"Введено недопустимое значение для ({prompt}) = '{value}'");
       return value;
     }
 
+    /// <summary>
+    /// Считывает целочисленное значение с консоли.
+    /// </summary>
+    /// <param name="prompt">Подсказка для ввода.</param>
+    /// <returns>Введенное целочисленное значение.</returns>
+    /// <exception cref="ArgumentException">Вызывается, если введено недопустимое значение.</exception>
     public static int ReadInt(string prompt)
     {
       Console.Write($"{prompt}: ");
+      string? input = Console.ReadLine();
       try
       {
-        string? input = Console.ReadLine();
         int value = int.Parse(input);
         return value;
       }
       catch
       {
-        throw new ArgumentException($"Введено недопустимое значение для ({prompt})");
+        throw new ArgumentException($"Введено недопустимое значение для ({prompt}) = '{input}'");
       }
     }
 
+    /// <summary>
+    /// Считывает десятичное значение с консоли.
+    /// </summary>
+    /// <param name="prompt">Подсказка для ввода.</param>
+    /// <returns>Введенное десятичное значение.</returns>
+    /// <exception cref="ArgumentException">Вызывается, если введено недопустимое значение.</exception>
     public static decimal ReadDecimal(string prompt)
     {
       Console.Write($"{prompt}: ");
+      string? input = Console.ReadLine();
       try
       {
-        string? input = Console.ReadLine();
         decimal value = decimal.Parse(input);
         return value;
       }
       catch
       {
-        throw new ArgumentException($"Введено недопустимое значение для ({prompt})");
+        throw new ArgumentException($"Введено недопустимое значение для ({prompt}) = '{input}'");
       }
     }
 
+    /// <summary>
+    /// Создает экземпляр сотрудника с полной занятостью на основе введенных данных.
+    /// </summary>
+    /// <param name="_id">Идентификатор сотрудника (по умолчанию -1 для создания нового сотрудника, иначе для обновления существующего сотрудника).</param>
+    /// <returns>Экземпляр сотрудника с полной занятостью.</returns>
+    /// <exception cref="EmployeeCreationException">Вызывается, если возникли проблемы при создании сотрудника.</exception>
     public static FullTimeEmployee InputFullTimeEmployee(int _id = -1)
     {
       try
@@ -58,6 +84,7 @@ namespace Company
         int id = _id == -1 ? ReadInt("ID") : _id;
         string name = ReadString("Имя");
         decimal baseSalary = ReadDecimal("Зарплата");
+
         FullTimeEmployee fullTimeEmployee = new FullTimeEmployee(id, name, baseSalary);
         return fullTimeEmployee;
       }
@@ -71,14 +98,21 @@ namespace Company
       }
     }
 
+    /// <summary>
+    /// Создает экземпляр сотрудника с частичной занятостью на основе введенных данных.
+    /// </summary>
+    /// <param name="_id">Идентификатор сотрудника (по умолчанию -1 для создания нового сотрудника, иначе для обновления существующего сотрудника).</param>
+    /// <returns>Экземпляр сотрудника с полной занятостью.</returns>
+    /// <exception cref="EmployeeCreationException">Вызывается, если возникли проблемы при создании сотрудника.</exception>
     public static PartTimeEmployee InputPartTimeEmployee(int _id = -1)
     {
       try
       {
-        int id = _id == -1 ? ReadInt("ID"): _id;
+        int id = _id == -1 ? ReadInt("ID") : _id;
         string name = ReadString("Имя");
         decimal hourlyRate = ReadDecimal("Почасовая ставка");
         decimal workedHours = ReadDecimal("Отработанные часы");
+
         PartTimeEmployee partTimeEmployee = new PartTimeEmployee(id, name, hourlyRate, workedHours);
         return partTimeEmployee;
       }
