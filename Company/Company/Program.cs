@@ -70,7 +70,7 @@ namespace Practice4
         Console.Write("Введите ");
         try
         {
-          int number = InputHelper.ReadInt("пункт меню");
+          int number = InputHelper.ReadValue("пункт меню", int.Parse);
           switch (number)
           {
             case 1:
@@ -145,6 +145,11 @@ namespace Practice4
         employeeManager.Add(fullTimeEmployee);
         Console.WriteLine($"Сотрудник {fullTimeEmployee} успешно добавлен!");
       }
+      catch (ArgumentException ex)
+      {
+        Console.WriteLine($"{ex.Message}");
+        Console.WriteLine("Создание сотрудника было отменено");
+      }
       catch (EmployeeCreationException ex)
       {
         Console.WriteLine($"{ex.Message}");
@@ -197,6 +202,11 @@ namespace Practice4
         employeeManager.Add(partTimeEmployee);
         Console.WriteLine($"Сотрудник {partTimeEmployee} успешно добавлен!");
       }
+      catch (ArgumentException ex)
+      {
+        Console.WriteLine($"{ex.Message}");
+        Console.WriteLine("Создание сотрудника было отменено");
+      }
       catch (EmployeeCreationException ex)
       {
         Console.WriteLine($"{ex.Message}");
@@ -242,7 +252,7 @@ namespace Practice4
     static void GetEmployeeById()
     {
       Console.Clear();
-      Console.WriteLine("3. Получить информацию о сотруднике по имени.");
+      Console.WriteLine("3. Получить информацию о сотруднике по ID.");
       Console.Write("Введите ");
       try
       {
