@@ -22,6 +22,11 @@ public class PhoneNumber
   /// <param name="type">Тип номера телефона.</param>
   public PhoneNumber(string number, PhoneNumberType type)
   {
+    if (number == null)
+    {
+      throw new ArgumentNullException(nameof(number), "Phone number cannot be null.");
+    }
+
     this.Number = number;
     this.Type = type;
   }
