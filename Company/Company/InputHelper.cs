@@ -15,6 +15,31 @@ namespace Company
   internal static class InputHelper
   {
     /// <summary>
+    /// Считывает значение указанного типа с консоли.
+    /// </summary>
+    /// <typeparam name="T">Тип значения для считывания.</typeparam>
+    /// <param name="prompt">Подсказка для ввода.</param>
+    /// <param name="parser">Функция для парсинга строки в нужный тип.</param>
+    /// <returns>Введенное значение указанного типа.</returns>
+    /// <exception cref="ArgumentException">Вызывается, если введено недопустимое значение.</exception>
+    public static T ReadValue<T>(string prompt, Func<string, T> parser)
+    {
+      Console.Write($"{prompt}: ");
+      string? input = Console.ReadLine();
+      if (string.IsNullOrWhiteSpace(input))
+        throw new ArgumentException($"Введено недопустимое значение для ({prompt}) = '{input}'");
+      
+      try
+      {
+        return parser(input);
+      }
+      catch
+      {
+        throw new ArgumentException($"Введено недопустимое значение для ({prompt}) = '{input}'");
+      }
+    }
+
+    /// <summary>
     /// Считывает строковое значение с консоли.
     /// </summary>
     /// <param name="prompt">Подсказка для ввода.</param>
@@ -22,11 +47,7 @@ namespace Company
     /// <exception cref="ArgumentException">Вызывается, если введено недопустимое значение (пустая строка).</exception>
     public static string ReadString(string prompt)
     {
-      Console.Write($"{prompt}: ");
-      string? value = Console.ReadLine();
-      if (string.IsNullOrWhiteSpace(value))
-        throw new ArgumentException($"Введено недопустимое значение для ({prompt}) = '{value}'");
-      return value;
+      return ReadValue(prompt, input => input);
     }
 
     /// <summary>
@@ -37,17 +58,7 @@ namespace Company
     /// <exception cref="ArgumentException">Вызывается, если введено недопустимое значение.</exception>
     public static int ReadInt(string prompt)
     {
-      Console.Write($"{prompt}: ");
-      string? input = Console.ReadLine();
-      try
-      {
-        int value = int.Parse(input);
-        return value;
-      }
-      catch
-      {
-        throw new ArgumentException($"Введено недопустимое значение для ({prompt}) = '{input}'");
-      }
+      return ReadValue(prompt, int.Parse);
     }
 
     /// <summary>
@@ -58,17 +69,7 @@ namespace Company
     /// <exception cref="ArgumentException">Вызывается, если введено недопустимое значение.</exception>
     public static decimal ReadDecimal(string prompt)
     {
-      Console.Write($"{prompt}: ");
-      string? input = Console.ReadLine();
-      try
-      {
-        decimal value = decimal.Parse(input);
-        return value;
-      }
-      catch
-      {
-        throw new ArgumentException($"Введено недопустимое значение для ({prompt}) = '{input}'");
-      }
+      return ReadValue(prompt, decimal.Parse);
     }
 
     /// <summary>
@@ -77,6 +78,7 @@ namespace Company
     /// <param name="_id">Идентификатор сотрудника (по умолчанию -1 для создания нового сотрудника, иначе для обновления существующего сотрудника).</param>
     /// <returns>Экземпляр сотрудника с полной занятостью.</returns>
     /// <exception cref="EmployeeCreationException">Вызывается, если возникли проблемы при создании сотрудника.</exception>
+    /// <exception cref="ArgumentException">Вызывается, если при создании сотрудника было введено недопустимое значение.</exception>
     public static FullTimeEmployee InputFullTimeEmployee(int _id = -1)
     {
       try
@@ -88,9 +90,9 @@ namespace Company
         FullTimeEmployee fullTimeEmployee = new FullTimeEmployee(id, name, baseSalary);
         return fullTimeEmployee;
       }
-      catch (ArgumentException ex)
+      catch (ArgumentException)
       {
-        throw new EmployeeCreationException(ex.Message);
+        throw;
       }
       catch
       {
@@ -104,6 +106,7 @@ namespace Company
     /// <param name="_id">Идентификатор сотрудника (по умолчанию -1 для создания нового сотрудника, иначе для обновления существующего сотрудника).</param>
     /// <returns>Экземпляр сотрудника с полной занятостью.</returns>
     /// <exception cref="EmployeeCreationException">Вызывается, если возникли проблемы при создании сотрудника.</exception>
+    /// <exception cref="ArgumentException">Вызывается, если при создании сотрудника было введено недопустимое значение.</exception>
     public static PartTimeEmployee InputPartTimeEmployee(int _id = -1)
     {
       try
@@ -116,9 +119,9 @@ namespace Company
         PartTimeEmployee partTimeEmployee = new PartTimeEmployee(id, name, hourlyRate, workedHours);
         return partTimeEmployee;
       }
-      catch (ArgumentException ex)
+      catch (ArgumentException)
       {
-        throw new EmployeeCreationException(ex.Message);
+        throw;
       }
       catch
       {
