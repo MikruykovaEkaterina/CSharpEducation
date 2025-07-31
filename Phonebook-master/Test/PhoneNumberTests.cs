@@ -19,5 +19,13 @@ namespace Tests
       Assert.That(phoneNumber.Number, Is.EqualTo(number));
       Assert.That(phoneNumber.Type, Is.EqualTo(type));
     }
+
+    [Test]
+    public void Create_NullPhoneNumber_ThrowException()
+    {
+      Assert.Throws(Is.TypeOf<ArgumentNullException> (), 
+        () => new PhoneNumber(null, PhoneNumberType.Work),
+        "Phone number cannot be null.");
+    }
   }
 }

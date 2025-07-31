@@ -1,5 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Phonebook;
+using System.Collections.Generic;
+using System;
 
 namespace Test
 {
@@ -21,16 +23,6 @@ namespace Test
       var number = new PhoneNumber("+7 (912) 000-0000", PhoneNumberType.Work);
 
       Assert.Throws(Is.Null, () => PhoneNumberValidator.Validate(number));
-    }
-
-    [Test]
-    public void Validate_NullPhoneNumber_NotThrowException()
-    {
-      var number = new PhoneNumber(null, PhoneNumberType.Work);
-
-      Assert.Throws(Is.TypeOf<ArgumentException>()
-        .And.Message.EqualTo("Phone number is invalid"),
-        () => PhoneNumberValidator.Validate(number));
     }
 
     [Test]

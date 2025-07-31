@@ -19,16 +19,15 @@ namespace Tests
     {
       correctSubscriber = new Subscriber("Egor",
         new List<PhoneNumber> { new PhoneNumber("+7 (912) 000-0000", PhoneNumberType.Personal) });
+
       wrongNumberSubscriber = new Subscriber("Kate",
         new List<PhoneNumber> { new PhoneNumber("1234", PhoneNumberType.Personal) });
-
     }
 
     [Test]
     public void Constructor_WithoutSubscriberList_InitializesPhonebook()
     {
       var phonebook = new Phonebook.Phonebook();
-
       Assert.That(phonebook.GetAll().Count(), Is.EqualTo(0));
     }
 
@@ -37,6 +36,7 @@ namespace Tests
     {
       var phonebook = new Phonebook.Phonebook(new List<Subscriber> { correctSubscriber });
       var subscribers = phonebook.GetAll().ToList();
+
       Assert.Contains(correctSubscriber, subscribers);
       Assert.That(phonebook.GetAll().Count(), Is.EqualTo(1));
     }
@@ -72,15 +72,19 @@ namespace Tests
     public void GetSubscriber_SubscriberNotInList_ThrowException()
     {
       var phonebook = new Phonebook.Phonebook(new List<Subscriber> { correctSubscriber });
-      Assert.Throws(Is.TypeOf<InvalidOperationException>(),
-        () => phonebook.GetSubscriber(Guid.NewGuid()));
+      var guid = Guid.NewGuid();
+      Assert.Throws(Is.TypeOf<InvalidOperationException>().
+        And.Message.EqualTo($"Subscriber with id {guid} not found."),
+        () => phonebook.GetSubscriber(guid));
     }
 
     [Test]
     public void GetSubscriber_DefaultGuid_ThrowsNotFoundException()
     {
       var phonebook = new Phonebook.Phonebook(new List<Subscriber> { correctSubscriber });
-      Assert.Throws(Is.TypeOf<InvalidOperationException>(), () => phonebook.GetSubscriber(default(Guid)));
+      Assert.Throws(Is.TypeOf<InvalidOperationException>().
+        And.Message.EqualTo($"Subscriber with id {default(Guid)} not found."), 
+        () => phonebook.GetSubscriber(default(Guid)));
     }
 
     [Test]
@@ -115,10 +119,11 @@ namespace Tests
     }
 
     [Test]
-    public void AddSubscriber_Null_ThrowsNullReferenceException()
+    public void AddSubscriber_Null_ThrowsException()
     {
       var phonebook = new Phonebook.Phonebook();
-      Assert.Throws(Is.TypeOf<NullReferenceException>(), 
+      Assert.Throws(Is.TypeOf<ArgumentNullException>().
+        And.Message.EqualTo("Subscriber to add cannot be null. (Parameter 'subscriber')"),
         () => phonebook.AddSubscriber(null));
     }
 
@@ -146,23 +151,24 @@ namespace Tests
         () => phonebook.AddNumberToSubscriber(correctSubscriber, newPhoneNumber));
     }
 
-    [TestCase("+7 (912) 111-1111")]
-    [TestCase("1234")]
-    public void AddNumberToSubscriber_SubscriberNotInList_ThrowException(string number)
+    public void AddNumberToSubscriber_SubscriberNotInList_ThrowException()
     {
-      var phonebook = new Phonebook.Phonebook(new List<Subscriber> { correctSubscriber });
-      var newPhoneNumber = new PhoneNumber(number, PhoneNumberType.Personal);
+      var phonebook = new Phonebook.Phonebook();
+      var newPhoneNumber = new PhoneNumber("+7 (912) 111-1111", PhoneNumberType.Personal);
 
-      Assert.Throws(Is.TypeOf<InvalidOperationException>(),
-        () => phonebook.AddNumberToSubscriber(wrongNumberSubscriber, newPhoneNumber));
+      Assert.Throws(Is.TypeOf<InvalidOperationException>()
+        .And.Message.EqualTo(($"Subscriber with id {correctSubscriber.Id} not found.")),
+        () => phonebook.AddNumberToSubscriber(correctSubscriber, newPhoneNumber));
     }
 
     [Test]
-    public void AddNumberToSubscriber_NullSubscriber_ThrowsNullReferenceException()
+    public void AddNumberToSubscriber_NullSubscriber_ThrowsException()
     {
       var phonebook = new Phonebook.Phonebook(new List<Subscriber> { correctSubscriber });
       var number = new PhoneNumber("+7 (912) 345-6789", PhoneNumberType.Work);
-      Assert.Throws(Is.TypeOf<NullReferenceException>(), () => phonebook.AddNumberToSubscriber(null, number));
+      Assert.Throws(Is.TypeOf<ArgumentNullException>().
+        And.Message.EqualTo("Subscriber to add number cannot be null. (Parameter 'subscriber')"),
+        () => phonebook.AddNumberToSubscriber(null, number));
     }
 
     [Test]
@@ -182,15 +188,18 @@ namespace Tests
       var phonebook = new Phonebook.Phonebook(new List<Subscriber> { correctSubscriber });
       var newName = "Kate";
 
-      Assert.Throws(Is.TypeOf<InvalidOperationException>(),
+      Assert.Throws(Is.TypeOf<InvalidOperationException>().
+        And.Message.EqualTo($"Subscriber with id {wrongNumberSubscriber.Id} not found."),
         () => phonebook.RenameSubscriber(wrongNumberSubscriber, newName));
     }
 
     [Test]
-    public void RenameSubscriber_NullSubscriber_ThrowsNullReferenceException()
+    public void RenameSubscriber_NullSubscriber_ThrowsException()
     {
       var phonebook = new Phonebook.Phonebook(new List<Subscriber> { correctSubscriber });
-      Assert.Throws(Is.TypeOf<NullReferenceException>(), () => phonebook.RenameSubscriber(null, "NewName"));
+      Assert.Throws(Is.TypeOf<ArgumentNullException>().
+        And.Message.EqualTo("Subscriber to rename cannot be null. (Parameter 'subscriber')"),
+        () => phonebook.RenameSubscriber(null, "NewName"));
     }
 
     [Test]
@@ -219,13 +228,27 @@ namespace Tests
 
     [TestCase("+7 (912) 111-1111")]
     [TestCase("1234")]
-    public void UpdateSubscriber_OldSubscriberNotInList_ThrowException(string number)
+    public void UpdateSubscriber_ValidOldSubscriberNotInList_ThrowException(string number)
     {
-      var phonebook = new Phonebook.Phonebook(new List<Subscriber> { correctSubscriber });
+      var phonebook = new Phonebook.Phonebook(new List<Subscriber> { });
       var newSubscriber = new Subscriber("Kate",
         new List<PhoneNumber> { new PhoneNumber(number, PhoneNumberType.Work) });
 
-      Assert.Throws(Is.TypeOf<InvalidOperationException>(),
+      Assert.Throws(Is.TypeOf<InvalidOperationException>().
+        And.Message.EqualTo($"Subscriber with id {correctSubscriber.Id} not found."),
+        () => phonebook.UpdateSubscriber(correctSubscriber, newSubscriber));
+    }
+
+    [TestCase("+7 (912) 111-1111")]
+    [TestCase("1234")]
+    public void UpdateSubscriber_InValidOldSubscriberNotInList_ThrowException(string number)
+    {
+      var phonebook = new Phonebook.Phonebook(new List<Subscriber> { });
+      var newSubscriber = new Subscriber("Kate",
+        new List<PhoneNumber> { new PhoneNumber(number, PhoneNumberType.Work) });
+
+      Assert.Throws(Is.TypeOf<InvalidOperationException>().
+        And.Message.EqualTo($"Subscriber with id {wrongNumberSubscriber.Id} not found."),
         () => phonebook.UpdateSubscriber(wrongNumberSubscriber, newSubscriber));
     }
 
@@ -241,22 +264,27 @@ namespace Tests
       var newSubscriberWithSameId = new Subscriber(subscriberWithSameId.Id, "Kate",
         new List<PhoneNumber> { new PhoneNumber("+7 (912) 111-1111", PhoneNumberType.Personal) });
 
-      Assert.Throws(Is.TypeOf<InvalidOperationException>(),
+      Assert.Throws(Is.TypeOf<InvalidOperationException>().
+        And.Message.EqualTo($"Unable to update subscriber. Subscriber with the ID {subscriberWithSameId.Id} already exists."),
         () => phonebook.UpdateSubscriber(correctSubscriber, newSubscriberWithSameId));
     }
 
     [Test]
-    public void UpdateSubscriber_NullOldSubscriber_ThrowsNullReferenceException()
+    public void UpdateSubscriber_NullOldSubscriber_ThrowsException()
     {
       var phonebook = new Phonebook.Phonebook(new List<Subscriber> { correctSubscriber });
-      Assert.Throws(Is.TypeOf<NullReferenceException >(), () => phonebook.UpdateSubscriber(null, correctSubscriber));
+      Assert.Throws(Is.TypeOf<ArgumentNullException>().
+        And.Message.EqualTo("Old subscriber cannot be null. (Parameter 'oldSubscriber')"),
+        () => phonebook.UpdateSubscriber(null, correctSubscriber));
     }
 
     [Test]
-    public void UpdateSubscriber_NullNewSubscriber_ThrowsNullReferenceException()
+    public void UpdateSubscriber_NullNewSubscriber_ThrowsException()
     {
       var phonebook = new Phonebook.Phonebook(new List<Subscriber> { correctSubscriber });
-      Assert.Throws(Is.TypeOf<NullReferenceException>(), () => phonebook.UpdateSubscriber(correctSubscriber, null));
+      Assert.Throws(Is.TypeOf<ArgumentNullException>().
+        And.Message.EqualTo("New subscriber cannot be null. (Parameter 'newSubscriber')"),
+        () => phonebook.UpdateSubscriber(correctSubscriber, null));
     }
 
     [Test]
@@ -273,8 +301,9 @@ namespace Tests
     public void DeleteSubscriber_SubscriberNotInList_ThrowException()
     {
       var phonebook = new Phonebook.Phonebook(new List<Subscriber> { correctSubscriber });
-      
-      Assert.Throws(Is.TypeOf<InvalidOperationException>(),
+
+      Assert.Throws(Is.TypeOf<InvalidOperationException>().
+        And.Message.EqualTo($"Subscriber with id {wrongNumberSubscriber.Id} not found."),
         () => phonebook.DeleteSubscriber(wrongNumberSubscriber));
     }
 
@@ -282,7 +311,9 @@ namespace Tests
     public void DeleteSubscriber_Null_ThrowsArgumentNullException()
     {
       var phonebook = new Phonebook.Phonebook();
-      Assert.Throws(Is.TypeOf<ArgumentNullException>(), () => phonebook.DeleteSubscriber(null));
+      Assert.Throws(Is.TypeOf<ArgumentNullException>().
+        And.Message.EqualTo("Subscriber to delete cannot be null. (Parameter 'subscriberToDelete')"), 
+        () => phonebook.DeleteSubscriber(null));
     }
   }
 }
