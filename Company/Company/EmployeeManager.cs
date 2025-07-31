@@ -73,9 +73,9 @@ namespace Company
           throw new EmployeeNotFoundException($"Сотрудник с id = {id} не содержится в списке");
         return result;
       }
-      catch (InvalidOperationException ex)
+      catch (InvalidOperationException)
       {
-        throw new InvalidOperationException($"Найдено несколько сотрудников с ID = {id}");
+        throw;
       }
     }
 

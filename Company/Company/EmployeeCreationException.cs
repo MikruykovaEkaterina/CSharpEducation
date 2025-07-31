@@ -29,10 +29,6 @@ namespace Company
   ///     decimal baseSalary = ReadDecimal("Зарплата");
   ///     return new FullTimeEmployee(id, name, baseSalary);
   ///   }
-  ///   catch (ArgumentException ex)
-  ///   {
-  ///     throw new EmployeeCreationException(ex.Message, ex);
-  ///   }
   ///   catch (Exception ex)
   ///   {
   ///     throw new EmployeeCreationException("Неизвестная ошибка при создании сотрудника", ex);
